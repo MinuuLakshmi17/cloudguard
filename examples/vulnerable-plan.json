@@ -1,0 +1,16 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.8.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {"address":"aws_s3_bucket.customer_uploads","mode":"managed","type":"aws_s3_bucket","name":"customer_uploads","values":{"bucket":"demo-customer-uploads"}},
+        {"address":"aws_s3_bucket_public_access_block.customer_uploads","mode":"managed","type":"aws_s3_bucket_public_access_block","name":"customer_uploads","values":{"block_public_acls":false,"block_public_policy":false,"ignore_public_acls":false,"restrict_public_buckets":false}},
+        {"address":"aws_security_group.admin_access","mode":"managed","type":"aws_security_group","name":"admin_access","values":{"ingress":[{"from_port":22,"to_port":22,"protocol":"tcp","cidr_blocks":["0.0.0.0/0"],"ipv6_cidr_blocks":[]}]}},
+        {"address":"aws_ebs_volume.data","mode":"managed","type":"aws_ebs_volume","name":"data","values":{"encrypted":false}},
+        {"address":"aws_db_instance.app","mode":"managed","type":"aws_db_instance","name":"app","values":{"storage_encrypted":false}},
+        {"address":"aws_iam_policy.admin","mode":"managed","type":"aws_iam_policy","name":"admin","values":{"policy":{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}}}
+      ]
+    }
+  }
+}

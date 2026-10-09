@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cloudguard}
+      POSTGRES_USER: ${POSTGRES_USER:-cloudguard}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local-only}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cloudguard} -d ${POSTGRES_DB:-cloudguard}"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://cloudguard:change-me-local-only@postgres:5432/cloudguard}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      PLAN_ROOT: /app/examples
+    ports: ["8000:8000"]
+    volumes:
+      - ./examples:/app/examples:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: python -m backend.app.worker
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://cloudguard:change-me-local-only@postgres:5432/cloudguard}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      PLAN_ROOT: /app/examples
+    volumes:
+      - ./examples:/app/examples:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+    ports: ["5173:80"]
+    depends_on: [api]
+
+volumes:
+  pgdata:

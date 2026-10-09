@@ -1,0 +1,4 @@
+{"format_version":"1.2","planned_values":{"root_module":{"resources":[
+{"address":"aws_ebs_volume.safe","mode":"managed","type":"aws_ebs_volume","name":"safe","values":{"encrypted":true}},
+{"address":"aws_db_instance.safe","mode":"managed","type":"aws_db_instance","name":"safe","values":{"storage_encrypted":true}}
+]}}}
